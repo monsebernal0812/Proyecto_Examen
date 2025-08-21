@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Registro de Créditos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet" />
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <main class="container">
+    <h1>Créditos</h1>
+
+    <section class="card">
+      <h2>Registrar nuevo crédito</h2>
+      <form id="form-credito">
+        <div class="grid">
+          <label>Cliente
+            <input name="cliente" id="cliente" required />
+          </label>
+          <label>Monto
+            <input name="monto" id="monto" type="number" step="0.01" min="0" required />
+          </label>
+          <label>Tasa interés anual (%)
+            <input name="tasa_interes" id="tasa_interes" type="number" step="0.01" min="0" required />
+          </label>
+          <label>Plazo (meses)
+            <input name="plazo" id="plazo" type="number" min="1" required />
+          </label>
+          <label>Fecha otorgamiento
+            <input name="fecha_otorgamiento" id="fecha_otorgamiento" type="date" required />
+          </label>
+        </div>
+
+        <div class="actions">
+          <button type="submit" id="btn-guardar">Guardar</button>
+          <button type="button" id="btn-cancelar" class="secondary" hidden>Cancelar edición</button>
+        </div>
+        <p id="form-error" class="error" hidden></p>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Lista de créditos</h2>
+      <table id="tabla-creditos">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Monto</th>
+            <th>Tasa %</th>
+            <th>Plazo</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Gráfica: Total de créditos otorgados</h2>
+      <canvas id="chartTotal"></canvas>
+    </section>
+
+    <section class="card">
+      <h2>Opcional: Distribución por cliente</h2>
+      <canvas id="chartClientes"></canvas>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>
+ 
