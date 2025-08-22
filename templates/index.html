@@ -1,21 +1,28 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <title>Registro de Créditos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Estilos propios -->
   <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet" />
-  <!-- Chart.js CDN -->
+
+  <!-- Librería para gráficas -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <main class="container">
     <h1>Créditos</h1>
 
+    <!-- =======================
+         Sección: Formulario de registro
+         ======================= -->
     <section class="card">
       <h2>Registrar nuevo crédito</h2>
       <form id="form-credito">
         <div class="grid">
+          <!-- Campos del formulario -->
           <label>Cliente
             <input name="cliente" id="cliente" required />
           </label>
@@ -33,14 +40,21 @@
           </label>
         </div>
 
+        <!-- Botones de acción -->
         <div class="actions">
           <button type="submit" id="btn-guardar">Guardar</button>
+          <!-- Botón visible solo al editar -->
           <button type="button" id="btn-cancelar" class="secondary" hidden>Cancelar edición</button>
         </div>
+
+        <!-- Mensaje de error de validación -->
         <p id="form-error" class="error" hidden></p>
       </form>
     </section>
 
+    <!-- =======================
+         Sección: Lista de créditos
+         ======================= -->
     <section class="card">
       <h2>Lista de créditos</h2>
       <table id="tabla-creditos">
@@ -55,22 +69,28 @@
             <th>Acciones</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody></tbody> <!-- Aquí se llena dinámicamente con JS -->
       </table>
     </section>
 
+    <!-- =======================
+         Sección: Gráfica total otorgado
+         ======================= -->
     <section class="card">
-      <h2>Gráfica: Total de créditos otorgados</h2>
+      <h2>Total de créditos otorgados</h2>
       <canvas id="chartTotal"></canvas>
     </section>
 
+    <!-- =======================
+         Sección: Gráfica opcional por cliente
+         ======================= -->
     <section class="card">
-      <h2>Opcional: Distribución por cliente</h2>
+      <h2>Distribución por cliente</h2>
       <canvas id="chartClientes"></canvas>
     </section>
   </main>
 
+  <!-- Script propio para manejar lógica con JS -->
   <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>
- 

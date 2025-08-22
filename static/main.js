@@ -1,24 +1,27 @@
-let editId = null;
-let chartTotal, chartClientes;
+let editId = null;          // Guarda el ID del crédito que se está editando (null si es nuevo)
+let chartTotal, chartClientes; // Referencias a las gráficas de Chart.js
 
+// Cuando el DOM esté cargado, inicializa la tabla y el formulario
 document.addEventListener("DOMContentLoaded", () => {
-  cargarCreditos();
-  configurarFormulario();
+  cargarCreditos();        // Carga los créditos desde la API y llena la tabla
+  configurarFormulario();  // Configura el formulario de alta/edición
 });
 
 function configurarFormulario() {
   const form = document.getElementById("form-credito");
   const btnCancelar = document.getElementById("btn-cancelar");
 
+  // Maneja el envío del formulario (crear o actualizar crédito)
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     limpiarError();
 
-    const data = leerFormulario();
-    const error = validarFront(data);
+    const data = leerFormulario();        // Lee datos del formulario
+    const error = validarFront(data);     // Valida campos en frontend
     if (error) return mostrarError(error);
 
     try {
+      // Decide si es POST (nuevo) o PUT (edición)
       const resp = await fetch(editId ? `/api/creditos/${editId}` : "/api/creditos", {
         method: editId ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
@@ -27,6 +30,7 @@ function configurarFormulario() {
       const json = await resp.json();
       if (!resp.ok) throw new Error(json.error || "Error en el servidor");
 
+      // Si fue exitoso, resetea el formulario y recarga la tabla
       form.reset();
       editId = null;
       btnCancelar.hidden = true;
@@ -37,6 +41,7 @@ function configurarFormulario() {
     }
   });
 
+  // Botón para cancelar la edición
   btnCancelar.addEventListener("click", () => {
     editId = null;
     form.reset();
@@ -46,6 +51,7 @@ function configurarFormulario() {
   });
 }
 
+// Obtiene los valores del formulario como objeto
 function leerFormulario() {
   return {
     cliente: document.getElementById("cliente").value.trim(),
@@ -56,6 +62,7 @@ function leerFormulario() {
   };
 }
 
+// Validación de datos en el frontend
 function validarFront(d) {
   if (!d.cliente) return "El campo 'Cliente' es obligatorio.";
   if (d.monto === "" || Number(d.monto) < 0) return "Monto inválido.";
@@ -65,17 +72,20 @@ function validarFront(d) {
   return null;
 }
 
+// Muestra un mensaje de error en el formulario
 function mostrarError(msg) {
   const p = document.getElementById("form-error");
   p.textContent = msg;
   p.hidden = false;
 }
+// Oculta el mensaje de error
 function limpiarError() {
   const p = document.getElementById("form-error");
   p.hidden = true;
   p.textContent = "";
 }
 
+// Carga créditos desde la API y los pinta en la tabla
 async function cargarCreditos() {
   const tbody = document.querySelector("#tabla-creditos tbody");
   tbody.innerHTML = "";
@@ -83,6 +93,7 @@ async function cargarCreditos() {
   const resp = await fetch("/api/creditos");
   const data = await resp.json();
 
+  // Crear filas de la tabla dinámicamente
   data.forEach((c) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -102,21 +113,24 @@ async function cargarCreditos() {
     tbody.appendChild(tr);
   });
 
-  actualizarGraficos(data);
+  actualizarGraficos(data); // Actualiza gráficas con los datos cargados
 }
 
+// Escapa texto para evitar inyecciones en HTML
 function esc(str) {
   const div = document.createElement("div");
   div.innerText = str;
   return div.innerHTML;
 }
 
+// Cargar datos en el formulario para editar un crédito
 async function editar(id) {
   const resp = await fetch("/api/creditos");
   const data = await resp.json();
   const c = data.find(x => x.id === id);
   if (!c) return;
 
+  // Pone los valores en el formulario
   editId = id;
   document.getElementById("cliente").value = c.cliente;
   document.getElementById("monto").value = c.monto;
@@ -124,26 +138,29 @@ async function editar(id) {
   document.getElementById("plazo").value = c.plazo;
   document.getElementById("fecha_otorgamiento").value = c.fecha_otorgamiento;
 
+  // Cambia el botón a modo "Actualizar"
   document.getElementById("btn-guardar").textContent = "Actualizar";
   document.getElementById("btn-cancelar").hidden = false;
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.scrollTo({ top: 0, behavior: "smooth" }); // Lleva el usuario arriba
 }
 
+// Elimina un crédito por ID
 async function eliminarCredito(id) {
   if (!confirm("¿Eliminar este crédito?")) return;
   const resp = await fetch(`/api/creditos/${id}`, { method: "DELETE" });
   const json = await resp.json();
   if (!resp.ok) return alert(json.error || "Error al eliminar");
-  cargarCreditos();
+  cargarCreditos(); // Recargar lista
 }
 
 // ---------- Gráficos ----------
+// Actualiza las gráficas: total otorgado y distribución por cliente
 function actualizarGraficos(creditos) {
   const total = creditos.reduce((acc, c) => acc + Number(c.monto), 0);
 
-  // Gráfico 1: Total 
+  // Gráfico 1: Total de créditos (una sola barra)
   const ctx1 = document.getElementById("chartTotal").getContext("2d");
-  if (chartTotal) chartTotal.destroy();
+  if (chartTotal) chartTotal.destroy(); // Destruye gráfico previo si existe
   chartTotal = new Chart(ctx1, {
     type: "bar",
     data: {
@@ -157,7 +174,7 @@ function actualizarGraficos(creditos) {
     }
   });
 
-  // Gráfico 2: Distribución por cliente
+  // Gráfico 2: Distribución por cliente (gráfico de pastel)
   const porCliente = {};
   creditos.forEach(c => {
     porCliente[c.cliente] = (porCliente[c.cliente] || 0) + Number(c.monto);
